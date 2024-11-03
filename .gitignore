@@ -1,0 +1,4 @@
+__pycache__/
+results/
+__init__.py
+shared_config.py
