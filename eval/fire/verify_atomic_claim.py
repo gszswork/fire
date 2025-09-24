@@ -101,8 +101,8 @@ def call_search(
 def get_sentence_similarity(new_sent, sentences, threshold=0.9):
     if len(sentences) == 0:
         return 0
-    single_embedding  = sbert_model.encode(new_sent, convert_to_tensor=True).to(torch.device('cuda'))
-    list_embeddings = sbert_model.encode(sentences, convert_to_tensor=True).to(torch.device('cuda'))
+    single_embedding  = sbert_model.encode(new_sent, convert_to_tensor=True).to(device)
+    list_embeddings = sbert_model.encode(sentences, convert_to_tensor=True).to(device)
     similarities = util.cos_sim(single_embedding, list_embeddings)
 
     count_above_threshold = sum(1 for i in range(len(sentences)) if similarities[0][i].item() > threshold)
@@ -122,7 +122,6 @@ def final_answer_or_next_search(
     diverse_prompt: Whether to use diverse prompt or not.
     tolerance: The number of similar queries or search results to tolerate before early stopping.
     """
-
     knowledge = '\n'.join([s.result for s in past_searches])
     knowledge = 'N/A' if not knowledge else knowledge
     full_prompt = _FINAL_ANSWER_OR_NEXT_SEARCH_FORMAT.replace(_STATEMENT_PLACEHOLDER, atomic_claim)
@@ -161,7 +160,6 @@ def final_answer_or_next_search(
         if len(search_history) >= tolerance and get_sentence_similarity(search_history[-1], search_history[-tolerance:-1],
                                                                     threshold=0.9) >= tolerance - 1:
             return '_Early_Stop', usage
-
         return GoogleSearchResult(query=answer_or_next_query['search_query'], result=call_search(answer_or_next_query['search_query'])), usage
     else:
         print(f"Unexpected output: {answer_or_next_query}")
