@@ -1,5 +1,5 @@
 __pycache__/
 results/
 __init__.py
-common/shared_config.py
 .DS_Store
+common/shared_config.py
